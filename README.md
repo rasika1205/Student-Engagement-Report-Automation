@@ -71,3 +71,19 @@ to automatically monitor student engagement metrics.
 * Dashboard integration
 * Slack notifications
 * Real-time analytics
+
+## License
+
+This project is **proprietary** and protected by copyright © 2025 Rasika Gautam.
+
+You are welcome to view the code for educational or evaluation purposes (e.g., portfolio review by recruiters).  
+However, you may **not copy, modify, redistribute, or claim this project as your own** under any circumstances — including in interviews or job applications — without written permission.
+
+---
+
+## 🧑‍💻 Author
+
+**Rasika Gautam**
+*Data Science & AI Enthusiast* | B.Tech MAC, NSUT
+[GitHub](https://github.com/rasika1205)
+

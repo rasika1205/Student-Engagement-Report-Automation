@@ -1,0 +1,349 @@
+{
+  "name": "My Student Engagement Worflow",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "1EBZPo-NU6sGQbkPYr_b4UfA0VC9OARMpbpa6QFQ73Gg",
+          "mode": "list",
+          "cachedResultName": "Student_engagement+(New)",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1EBZPo-NU6sGQbkPYr_b4UfA0VC9OARMpbpa6QFQ73Gg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1128429068,
+          "mode": "list",
+          "cachedResultName": "Dataset",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1EBZPo-NU6sGQbkPYr_b4UfA0VC9OARMpbpa6QFQ73Gg/edit#gid=1128429068"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        -880,
+        -32
+      ],
+      "id": "c8848549-a332-4c5d-bddb-f10be6156f3f",
+      "name": "Google Sheets Trigger",
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "Z0lzCvLOzaXmh51q",
+          "name": "Google Sheets Trigger account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Act as an expert data analyst. Given the following KPIs from a student engagement dataset, summarize the overall engagement performance in 2-3 crisp and insightful sentences suitable for a leadership dashboard. {{ $('Calculating KPI').item.json.studentsByLocation }}  {{ $('Calculating KPI').item.json.totalStudents }}",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        -304,
+        -464
+      ],
+      "id": "c2ae869f-d304-4778-9537-bcc3a1facd9f",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        -304
+      ],
+      "id": "6e3b08b3-fab5-46c2-a44c-c43df466cba1",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "x2YHfZpfLAlI8OqB",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://quickchart.io/chart/create",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"chart\": {\n    \"type\": \"doughnut\",\n    \"data\": {\n      \"datasets\": [{\n        \"data\": [],\n        \"backgroundColor\": [\"#ffffff00\"] \n      }]\n    },\n    \"options\": {\n      \"cutout\": \"90%\",\n      \"plugins\": {\n        \"legend\": { \"display\": false },\n        \"doughnutlabel\": {\n          \"labels\": [\n            {\n              \"text\": \"{{ $json.totalStudents }}\",\n              \"font\": {\n                \"size\": 40\n              }\n            },\n            {\n              \"text\": \"Total Students\"\n            }\n          ]\n        }\n      }\n    }\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -256,
+        -144
+      ],
+      "id": "d32c7f61-6795-482f-b73d-94e04e043181",
+      "name": "Total Students"
+    },
+    {
+      "parameters": {
+        "numberInputs": 10
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        144,
+        -224
+      ],
+      "id": "efa653ea-c385-4822-90db-f14cee8cb7dc",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://quickchart.io/chart/create",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"chart\": {\n    \"type\": \"doughnut\",\n    \"data\": {\n      \"datasets\": [{\n        \"data\": [],\n        \"backgroundColor\": [\"#ffffff00\"] \n      }]\n    },\n    \"options\": {\n      \"cutout\": \"90%\",\n      \"plugins\": {\n        \"legend\": { \"display\": false },\n        \"doughnutlabel\": {\n          \"labels\": [\n            {\n              \"text\": \"{{ $json.totalAssignmentsSubmitted }}\",\n              \"font\": {\n                \"size\": 40\n              }\n            },\n            {\n              \"text\": \"Total Students\"\n            }\n          ]\n        }\n      }\n    }\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -256,
+        240
+      ],
+      "id": "a09a5f7b-e175-4c48-b056-91facff1e8b5",
+      "name": "Total Assignment Submitted"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://quickchart.io/chart/create",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"chart\": {\n    \"type\": \"horizontalBar\",\n    \"data\": {\n      \"labels\": [\n        \"{{ Object.entries($json.studentsByLocation).sort((a,b) => b[1]-a[1])[0][0] }}\",\n        \"{{ Object.entries($json.studentsByLocation).sort((a,b) => b[1]-a[1])[1][0] }}\",\n        \"{{ Object.entries($json.studentsByLocation).sort((a,b) => b[1]-a[1])[2][0] }}\",\n        \"{{ Object.entries($json.studentsByLocation).sort((a,b) => b[1]-a[1])[3][0] }}\",\n        \"{{ Object.entries($json.studentsByLocation).sort((a,b) => b[1]-a[1])[4][0] }}\",\n        \"{{ Object.entries($json.studentsByLocation).sort((a,b) => b[1]-a[1])[5][0] }}\"\n      ],\n      \"datasets\": [\n        {\n          \"label\": \"Student Count\",\n          \"data\": [\n            {{ Object.entries($json.studentsByLocation).sort((a,b) => b[1]-a[1])[0][1] }},\n            {{ Object.entries($json.studentsByLocation).sort((a,b) => b[1]-a[1])[1][1] }},\n            {{ Object.entries($json.studentsByLocation).sort((a,b) => b[1]-a[1])[2][1] }},\n            {{ Object.entries($json.studentsByLocation).sort((a,b) => b[1]-a[1])[3][1] }},\n            {{ Object.entries($json.studentsByLocation).sort((a,b) => b[1]-a[1])[4][1] }},\n            {{ Object.entries($json.studentsByLocation).sort((a,b) => b[1]-a[1])[5][1] }}\n          ],\n          \"backgroundColor\": \"rgba(75,192,192,0.6)\"\n        }\n      ]\n    },\n    \"options\": {\n      \"title\": {\n        \"display\": true,\n        \"text\": \"Top 6 Locations\"\n      }\n    }\n  }\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -256,
+        32
+      ],
+      "id": "0ae64a61-fc7a-4ae4-adb5-d4ba725fc1d2",
+      "name": "student count by location"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1️⃣ Grab all incoming items\nconst items = $input.all();\n\n// 2️⃣ Prepare containers\nlet summaryText = '';\nconst charts = [];\n\n// 3️⃣ Loop over each item just once\nfor (const item of items) {\n  const data = item.json;\n\n  // Capture the first summary block found\n  if (data.text && !summaryText) {\n    summaryText = data.text.trim();\n  }\n  // If it's a chart block, collect URL + auto-ID\n  else if (data.url) {\n    // Try to pick a unique part of the chart URL for captioning\n    const chartId =\n      data.url.match(/(sf|zf)-[\\w-]+/)?.[0] || `chart-${charts.length + 1}`;\n    charts.push({\n      caption: `Chart ${charts.length + 1} (${chartId})`,\n      imageUrl: data.url\n    });\n  }\n}\n\n// 4️⃣ Fallback summary if none was provided\nif (!summaryText) {\n  summaryText = \"No summary provided.\";\n}\n\n// 5️⃣ Compose the HTML for each chart\nconst chartBlocks = charts\n  .map(\n    chart => `\n  <div class=\"chart-block\">\n    <h3>${chart.caption}</h3>\n    <img src=\"${chart.imageUrl}\" alt=\"${chart.caption}\" />\n  </div>\n`\n  )\n  .join(\"\\n\");\n\n// 6️⃣ Full HTML report document\nconst html = `\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\" />\n  <title>📊 Student Engagement Report</title>\n  <style>\n    body {\n      font-family: 'Segoe UI', sans-serif;\n      background: #f5f7fa;\n      margin: 0;\n      padding: 30px;\n      color: #222;\n    }\n    h1 {\n      color: #2c3e50;\n      text-align: center;\n      margin-bottom: 30px;\n    }\n    .summary-box {\n      background: #fffefc;\n      border-left: 5px solid #ffa500;\n      padding: 20px 25px;\n      border-radius: 8px;\n      max-width: 900px;\n      margin: 0 auto 40px auto;\n      box-shadow: 0 2px 8px rgba(0,0,0,0.05);\n      font-size: 1.05em;\n    }\n    .charts {\n      display: flex;\n      flex-wrap: wrap;\n      justify-content: center;\n      gap: 24px;\n    }\n    .chart-block {\n      background: #fff;\n      border-radius: 10px;\n      box-shadow: 0 2px 6px rgba(0,0,0,0.1);\n      padding: 16px;\n      text-align: center;\n      width: 100%;\n      max-width: 360px;\n    }\n    .chart-block img {\n      max-width: 100%;\n      border-radius: 6px;\n      border: 1px solid #ccc;\n    }\n    footer {\n      text-align: center;\n      font-size: 0.85em;\n      color: #666;\n      margin-top: 50px;\n    }\n  </style>\n</head>\n<body>\n  <h1>📊 Student Engagement Report</h1>\n  <div class=\"summary-box\"><p>${summaryText}</p></div>\n  <div class=\"charts\">${chartBlocks}</div>\n  <footer>Generated on ${new Date().toLocaleString()}</footer>\n</body>\n</html>\n`;\n\n// 7️⃣ Return exactly one item containing the full report\nreturn [\n  {\n    json: {\n      html\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        352,
+        -224
+      ],
+      "id": "16e3ca99-5c58-4e71-b9c9-fdc2267a67f5",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "sendTo": "rasikagautam1205@gmail.com",
+        "subject": "New Report",
+        "message": "={{ $json.html }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        560,
+        -224
+      ],
+      "id": "fa5dd22e-5214-46cf-868e-1786bba9d62c",
+      "name": "Send a message",
+      "webhookId": "de205204-7107-46e0-9eb7-cac0b79d12ab",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "GdC4iHtUXXMxVRTD",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst cleanedItems = items.map((item) => {\n  if (!item?.json?.PaymentAmount) {\n    item.json.PaymentAmount = 0;\n  }\n  if (!item?.json?.AssignmentsSubmitted) {\n    item.json.AssignmentsSubmitted = 0;\n  }\n  return item;\n});\nreturn cleanedItems;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -672,
+        -32
+      ],
+      "id": "804c5787-bc15-433d-94c4-2cfa7e749c07",
+      "name": "Data Cleaning"
+    },
+    {
+      "parameters": {
+        "jsCode": "const students = $input.all().map((item) => item.json);\n\n// KPIs and metrics\nconst totalStudents = students.length;\nconst totalVideosWatched = students.reduce(\n  (acc, student) => acc + student.VideosWatched,\n  0,\n);\nconst totalAssignmentsSubmitted = students.reduce(\n  (acc, student) => acc + student.AssignmentsSubmitted,\n  0,\n);\nconst totalQuizScoresAvg =\n  students.reduce((acc, student) => acc + student.QuizScoresAvg, 0) /\n  students.length;\nconst totalAvgSessionTime =\n  students.reduce((acc, student) => acc + student.AvgSessionTime, 0) /\n  students.length;\nconst totalPaymentAmount = students.reduce(\n  (acc, student) => acc + student.PaymentAmount,\n  0,\n);\n\n// Student count by location for bar chart\nconst studentsByLocation = students.reduce((acc, student) => {\n  acc[student.Location] = (acc[student.Location] || 0) + 1;\n  return acc;\n}, {});\n\nreturn [\n  {\n    json: {\n      totalStudents,\n      totalVideosWatched,\n      totalAssignmentsSubmitted,\n      totalQuizScoresAvg,\n      totalAvgSessionTime,\n      totalPaymentAmount,\n      studentsByLocation,\n    },\n  },\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -480,
+        -32
+      ],
+      "id": "fcff2612-f397-42c1-8f89-eb1a6f04701e",
+      "name": "Calculating KPI"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Sheets Trigger": {
+      "main": [
+        [
+          {
+            "node": "Data Cleaning",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Total Students": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Total Assignment Submitted": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "student count by location": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data Cleaning": {
+      "main": [
+        [
+          {
+            "node": "Calculating KPI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculating KPI": {
+      "main": [
+        [
+          {
+            "node": "student count by location",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Total Students",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Total Assignment Submitted",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "baa7361d-eccf-4f01-a8a7-cda2db59acb1",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ee4a7bf9259df4fc5294d535fda424b65387ca7fe2b54e5b43681b73a1741de2"
+  },
+  "id": "TpeokFg7PY5N23xA",
+  "tags": []
+}

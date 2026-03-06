@@ -29,7 +29,6 @@ An automated data pipeline built with **n8n** that processes student data, calcu
 
 ## 📸 Workflow
 
-![Workflow](screenshots/workflow.png)
 
 <img width="1919" height="910" alt="Screenshot 2026-03-05 225924" src="https://github.com/user-attachments/assets/668d9b9a-a7e1-4051-b31d-6a8e525d757a" />
 
